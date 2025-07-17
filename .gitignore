@@ -1,0 +1,10 @@
+# Ignore node_modules and other clutter
+node_modules/
+.env
+*.log
+.DS_Store
+Thumbs.db
+*.cache
+*.zip
+dist/
+.vscode/

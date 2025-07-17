@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text Chatbot</title>
+  <link id="themeStylesheet" rel="stylesheet" href="style-professional.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+  <div id="headerBar">
+    <div id="chatbotName">WALTER AI</div>
+    <button id="themeToggle" onclick="toggleTheme()">🌓</button>
+  </div>
+
+  <div id="chatbox"></div>
+
+  <div id="inputArea">
+    <input id="userInput" type="text" placeholder="Type your message..." />
+    <button onclick="handleUserSend()">Send</button>
+  </div>
+
+  <script>
+    let currentTheme = "professional";
+
+    function toggleTheme() {
+      const themeLink = document.getElementById("themeStylesheet");
+      currentTheme = currentTheme === "professional" ? "dark" : "professional";
+      themeLink.href = currentTheme === "professional" ? "style-professional.css" : "style-dark.css";
+    }
+
+    document.getElementById("userInput").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleUserSend();
+      }
+    });
+
+    async function handleUserSend() {
+      const input = document.getElementById("userInput");
+      const chatbox = document.getElementById("chatbox");
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      chatbox.innerHTML += `<div class="message user">${userText}</div>`;
+      input.value = "";
+      chatbox.scrollTop = chatbox.scrollHeight;
+      chatbox.innerHTML += `<div class="message bot" id="loading">...thinking...</div>`;
+
+      try {
+        const reply = await sendToBackend(userText); // 👈 Only using backend now
+        document.getElementById("loading").remove();
+        chatbox.innerHTML += `<div class="message bot">${marked.parse(reply)}</div>`;
+        chatbox.scrollTop = chatbox.scrollHeight;
+      } catch (error) {
+        document.getElementById("loading").remove();
+        chatbox.innerHTML += `<div class="message bot">❌ Error: ${error.message}</div>`;
+      }
+    }
+
+    async function sendToBackend(userText) {
+      const response = await fetch("http://localhost:3000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userText })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch from backend");
+      }
+
+      const data = await response.json();
+      if (!data.reply) {
+        throw new Error("No reply in response");
+      }
+
+      return data.reply;
+    }
+  </script>
+
+</body>
+</html>
