@@ -1,8 +1,10 @@
 // server.mjs
 import cors from "cors";
+import dotenv from 'dotenv';
 import express from "express";
 import fetch from "node-fetch";
 const PORT = 3000;
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -19,7 +21,7 @@ app.post('/chat', async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`
       },
       body: JSON.stringify({
         model: "mistralai/mistral-7b-instruct:free",
@@ -44,7 +46,7 @@ app.get("/", (req, res) => {
 });
 
   app.listen(PORT, () => {
-  console.log(`✅ Server is running at http://localhost:${PORT}`);
+  console.log(`✅ Server is running at D${PORT}`);
   
 });
 
